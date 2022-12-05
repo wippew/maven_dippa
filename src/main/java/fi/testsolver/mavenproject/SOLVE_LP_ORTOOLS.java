@@ -35,7 +35,6 @@ public class SOLVE_LP_ORTOOLS {
 		
 		String solverName = "GLOP";
 		logger.info("Instantiating solver" + solverName);
-		//MPSolver model = new MPSolver("SimpleGurobi", MPSolver.OptimizationProblemType.GUROBI_LINEAR_PROGRAMMING);
 		MPSolver model= MPSolver.createSolver("GLOP");
 		model.enableOutput();
 		
@@ -49,9 +48,7 @@ public class SOLVE_LP_ORTOOLS {
 					}
 				}
 			}
-		}
-		
-		
+		}		
 		
 		// constraint 1: Leave every task at most once
 		logger.info("Creating " +  String.valueOf(numberOfNodes) + "Constraint 1...");
@@ -84,35 +81,46 @@ public class SOLVE_LP_ORTOOLS {
 		for (int i: allDepots) {			
 			int[] cars = new int[1];
 			cars[0] = 0;
-			for (int k: allVehicles) {
-				MPConstraint constraint3 = model.makeConstraint(1, 1, "c3.1.");
+			for (int k = 0; k < cars.length; k++) {
+				MPConstraint constraint0 = model.makeConstraint(1, 1, "c3.1.");
 				int car = cars[k];				
 				for (int j : allNodes) {
-					constraint3.setCoefficient(x[i][j][car], 1);
+					constraint0.setCoefficient(x[i][j][car], 1);
 				}
-			}
-		}
-//		
-//		//constraint 3.2: return to own depot
-		logger.info("Creating " +  String.valueOf(numberOfNodes) + "Constraint 3.2....");
-		for (int j: allDepots) {
-			
-			int[] cars = new int[1];
-			cars[0] = 0;
-			for (int k: allVehicles) {
-				MPConstraint constraint = model.makeConstraint(1, 1, "c3.2.");
-				int car = cars[k];				
-				for (int i : allNodes) {
-					constraint.setCoefficient(x[i][j][car], 1);
+				
+				MPConstraint constraint1 = model.makeConstraint(1, 1, "c3.2.");			
+				for (int j : allNodes) {
+					constraint1.setCoefficient(x[j][i][car], 1);
 				}
 			}
 		}
 		
-		//constraint 4: skip for now
+		//constraint 4: no trip is conducted by a vehicle not belonging to a depot
+		logger.info("Creating Constraint 4...");
+		for (int depotIndex: allDepots) {
+			int [] cars = new int[1];
+			cars[0] = 0;
+			for (int otherDepot: allDepots) {
+				if (depotIndex != otherDepot) {					
+					for (int k = 0; k < cars.length; k++) {
+						MPConstraint constraint0 = model.makeConstraint(0, 0, "c4");
+						int car = cars[k];
+						for (int j: allNodes) {
+							constraint0.setCoefficient(x[otherDepot][j][car], 1);
+						}
+						MPConstraint constraint1 = model.makeConstraint(0, 0, "c4");
+						for (int i: allNodes) {
+							constraint1.setCoefficient(x[i][otherDepot][car], 1);
+						}
+					}
+				}
+			}
+			
+		}
 		
 		
 		//constraint 5: number of vehicles in and out of a tasks's location stays the same
-		logger.info("Creating " +  String.valueOf(numberOfNodes) + "Constraint 5...");
+		logger.info("Creating Constraint 5...");
 		for (int k: allVehicles) {
 			for (int j: allNodes) {
 				MPConstraint constraint = model.makeConstraint(0, 0, "c5");
@@ -189,8 +197,8 @@ public class SOLVE_LP_ORTOOLS {
 		  for (int k: allVehicles) {
 			  for(int i: allNodes) {
 				  for (int j: allNodes) {
-					  if (i!= j && x[i][j][k].solutionValue() == 1.0) {
-						  k0.add(String.format("%d_%d, %d", i, j, k));
+					  if (i != j && x[i][j][k].solutionValue() == 1.0) {
+						  k0.add(String.format("%d_%d", i, j));
 					  }
 				  }
 			  }
@@ -200,11 +208,6 @@ public class SOLVE_LP_ORTOOLS {
 		}
 		
 		System.out.println("the array is hence: ");
-		for (String str: k0) {
-			System.out.println(str);
-		}
-		
-		
-		
+		System.out.println(k0);		
 	}
 }
