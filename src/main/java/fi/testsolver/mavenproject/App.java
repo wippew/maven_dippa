@@ -11,6 +11,8 @@ import com.google.ortools.linearsolver.MPObjective;
 import com.google.ortools.linearsolver.MPSolver;
 import com.google.ortools.linearsolver.MPVariable;
 
+
+
 public class App {
 	
 	private static final Logger logger = Logger.getLogger(App.class.getName());
@@ -28,6 +30,8 @@ public class App {
 		duration[2][1] = 10;
 		duration[2][2] = 0;
 		int[] demand = {0, 60, 60, 60};
+		
+		
 		
 		SolveOrToolsLP(duration, demand);
 		
@@ -63,10 +67,7 @@ public class App {
 			}
 		}
 		
-//		MPVariable[] u = new MPVariable[numberOfNodes];
-//		for(int i: allNodes) {
-//			u[i] = model.makeIntVar(0, numberOfNodes, String.format("u_i%d", i));
-//		}
+		
 		
 		// constraint 1: Leave every task at most once
 		logger.info("Creating " +  String.valueOf(numberOfNodes) + "Constraint 1...");
@@ -109,19 +110,19 @@ public class App {
 		}
 //		
 //		//constraint 3.2: return to own depot
-//		logger.info("Creating " +  String.valueOf(numberOfNodes) + "Constraint 3.2....");
-//		for (int depot_index: allDepots) {
-//			
-//			int[] cars = new int[1];
-//			cars[0] = 1;
-//			for (int k: allVehicles) {
-//				MPConstraint constraint = model.makeConstraint(1, 1, "c3.2.");
-//				int car = cars[k];				
-//				for (int i : allNodes) {
-//					constraint.setCoefficient(x[i][depot_index][car], 1);
-//				}
-//			}
-//		}
+		logger.info("Creating " +  String.valueOf(numberOfNodes) + "Constraint 3.2....");
+		for (int j: allDepots) {
+			
+			int[] cars = new int[1];
+			cars[0] = 0;
+			for (int k: allVehicles) {
+				MPConstraint constraint = model.makeConstraint(1, 1, "c3.2.");
+				int car = cars[k];				
+				for (int i : allNodes) {
+					constraint.setCoefficient(x[i][j][car], 1);
+				}
+			}
+		}
 		
 		//constraint 4: skip for now
 		
@@ -141,46 +142,39 @@ public class App {
 		}
 		
 		//constraint 6: the time-capacity of each vehicle should not exceed the maximum capacity
-//		logger.info("Creating " +  String.valueOf(numberOfNodes) + "Constraint 6...");
-//		for (int k: allVehicles) {
-//			MPConstraint constraint = model.makeConstraint(0, maxTime, "c6");
-//			for (int i: allNodes) {
-//				for (int j: allNodes) {
-//					constraint.setCoefficient(x[i][j][k] , (duration[i][j] + demand[j]));
-//				}
-//			}
-//		}
+		logger.info("Creating " +  String.valueOf(numberOfNodes) + "Constraint 6...");
+		for (int k: allVehicles) {
+			MPConstraint constraint = model.makeConstraint(0, maxTime, "c6");
+			for (int i: allNodes) {
+				for (int j: allNodes) {
+					constraint.setCoefficient(x[i][j][k] , (duration[i][j] + demand[j]));
+				}
+			}
+		}
+		
+		//definition of auxilliary variable u
+		MPVariable[] u = new MPVariable[numberOfNodes];
+		for(int i: allTasks) {
+			u[i] = model.makeIntVar(1, numberOfNodes, String.format("u_i%d", i));
+		}
 //		
 		// MTZ subtour elimination
 		// first forcing depot to be visited
 //		MPConstraint constraint = model.makeConstraint(1, 1, "c7");
 //		constraint.setCoefficient(u[0], 1);	
-//		logger.info("Creating " +  String.valueOf(numberOfNodes) + "Constraint 6...");
-//		for (int i: allTasks) {
-//			for (int j: allTasks) {
-//				for (int k: allVehicles) {
-//					if (i != j) {
-//						MPConstraint constraint = model.makeConstraint(-6, numberOfNodes, "c6 "+ String.format("%d_%d", i,j));
-//						constraint.setCoefficient(u[j], 1);
-//						constraint.setCoefficient(u[i], -1);
-//						constraint.setCoefficient(x[i][j][k], -7);
-//					}
-//				}
-//			}
-//		}
-		
-//		ArrayList<MPConstraint> test = new ArrayList<>();
-//		
-//		for (MPConstraint constraint: model.constraints()) {
-//			String one = constraint.name();
-//			String two = constraint.toString();
-//			MPSolver.BasisStatus three = constraint.basisStatus();
-//			Double four = constraint.dualValue();
-//
-//			test.add(constraint);
-//		}
-		
-		
+		logger.info("Creating " +  String.valueOf(numberOfNodes) + "Constraint 6...");
+		for (int i: allTasks) {
+			for (int j: allTasks) {
+				for (int k: allVehicles) {
+					if (i != j) {
+						MPConstraint constraint = model.makeConstraint(-10, numberOfNodes, "c6 "+ String.format("%d_%d", i,j));
+						constraint.setCoefficient(u[j], 1);
+						constraint.setCoefficient(u[i], -1);
+						constraint.setCoefficient(x[i][j][k], -6);
+					}
+				}
+			}
+		}		
 		
 		MPObjective objective = model.objective();		
 		for (int k: allVehicles) {
@@ -211,7 +205,7 @@ public class App {
 		  for (int k: allVehicles) {
 			  for(int i: allNodes) {
 				  for (int j: allNodes) {
-					  if (i!= j && x[i][j][k].solutionValue() == 1.0) {
+					  if (i != j && x[i][j][k].solutionValue() == 1.0) {
 						  k0.add(String.format("%d_%d, %d", i, j, k));
 					  }
 				  }
