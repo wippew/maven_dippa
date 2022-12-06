@@ -25,32 +25,38 @@ public class App {
 		int totalCount = depotCount + taskCount;
 		int timeOfWorkingDay = 6 * 3600;
 		
-		List<MaintenanceWorkDTO> data = Utils.getDataForTasks(totalCount);
+		List<MaintenanceWorkDTO> data = Utils.getDataForTasks(totalCount);		
 		
+//		int fetchNewDurations = 1;
+//		if (fetchNewDurations == 1) {
+//			Double[][] duration = DurationService.getDurationMatrix(totalCount, data);
+//			SOLVE_LP_ORTOOLS ortools = new SOLVE_LP_ORTOOLS();
+//			int[] demand = new int[duration.length];
+//			for (double d: demand) {
+//				d = 60;
+//			}
+//			ortools.SolveOrToolsLP(duration, demand);
+//		} else {
+//			
+//		}
 		
+		Double[][] duration = new Double[3][3];
+		duration[0][0] = 0.0;
+		duration[0][1] = 10.0;
+		duration[0][2] = 15.0;
+		duration[1][0] = 10.0;
+		duration[1][1] = 0.0;
+		duration[1][2] = 15.0;
+		duration[2][0] = 7.0;
+		duration[2][1] = 10.0;
+		duration[2][2] = 0.0;
+
 		
-		int fetchNewDurations = 1;
-		Utils.convertTM35FINToWGS84();
-		if (fetchNewDurations == 1) {
-			Double[][] duration = DurationService.getDurationMatrix(totalCount, data);
-		} else {
-			
-		}
+		int[] demand = {0, 3600, 3600, 3600};
 		
-//		int[][] duration = new int[3][3];
-//		duration[0][0] = 0;
-//		duration[0][1] = 10;
-//		duration[0][2] = 15;
-//		duration[1][0] = 10;
-//		duration[1][1] = 0;
-//		duration[1][2] = 15;
-//		duration[2][0] = 7;
-//		duration[2][1] = 10;
-//		duration[2][2] = 0;
-//		int[] demand = {0, 60, 60, 60};
+		SOLVE_LP_ORTOOLS ortools = new SOLVE_LP_ORTOOLS();
+		ortools.SolveOrToolsLP(duration, demand);
 		
-//		SOLVE_LP_ORTOOLS ortools = new SOLVE_LP_ORTOOLS();
-//		ortools.SolveOrToolsLP(duration, demand);
 		
 	}
 }

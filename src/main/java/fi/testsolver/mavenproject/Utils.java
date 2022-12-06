@@ -24,7 +24,7 @@ import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.geom.PrecisionModel;
+import org.locationtech.proj4j.CRSFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.geotools.geometry.jts.JTS;
@@ -162,10 +162,19 @@ public class Utils {
 	}
 	
 	public static void convertTM35FINToWGS84() {
-		GeometryFactory factory = new GeometryFactory(new PrecisionModel(), 3067);
-		Point point = factory.createPoint(new Coordinate(333000, 6666000));
-		Projector projector = Projector.get(EPSGSrsName.get(4326)); // target srid
-		Point wgs84 = projector.project(point);
+		GeometryFactory gf = new GeometryFactory();
+		try {
+			CoordinateReferenceSystem wgs84 = CRS.decode("EPSG:4326", true);
+			CoordinateReferenceSystem inCRS = CRS.decode("EPSG:4326");
+			CoordinateReferenceSystem outCRS = CRS.decode("epsg:3067");
+			
+			MathTransform transform = CRS.findMathTransform(inCRS, outCRS, true);
+            Point p = gf.createPoint(new Coordinate(296681.527970467,6755838.498112611));
+            Geometry g = JTS.transform(p, transform);
+            System.out.println(g.getCoordinate());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	

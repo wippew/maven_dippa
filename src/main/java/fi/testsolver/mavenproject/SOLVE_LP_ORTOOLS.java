@@ -21,12 +21,11 @@ public class SOLVE_LP_ORTOOLS {
 	
 	private static final Logger logger = Logger.getLogger(SOLVE_LP_ORTOOLS.class.getName());
 	
-	public static void SolveOrToolsLP(int[][] duration, int[] demand) {
+	public static void SolveOrToolsLP(Double[][] duration, int[] demand) {
 		Loader.loadNativeLibraries();
 		int numberOfNodes = duration[0].length;
-		int numberOfCars = 1;
 		int depotCount = 1;
-		int maxTime = 5 * 60 * 60;
+		int maxTime = 10 * 60 * 60;
 		int numberOfVehicles = 1;
 		int[] allNodes = IntStream.range(0, numberOfNodes).toArray();
 		int[] allTasks = IntStream.range(1, numberOfNodes).toArray();
@@ -189,6 +188,7 @@ public class SOLVE_LP_ORTOOLS {
 		
 		
 		List<String> k0 = new ArrayList<>();
+		List<String> k1 = new ArrayList<>();
 		
 		// Check that the problem has a feasible solution.
 		if (resultStatus == MPSolver.ResultStatus.OPTIMAL
@@ -198,7 +198,11 @@ public class SOLVE_LP_ORTOOLS {
 			  for(int i: allNodes) {
 				  for (int j: allNodes) {
 					  if (i != j && x[i][j][k].solutionValue() == 1.0) {
-						  k0.add(String.format("%d_%d", i, j));
+						  if (k == 0) {
+							  k0.add(String.format("%d_%d", i, j));
+						  } else {
+							  k1.add(String.format("%d_%d", i, j));
+						  }
 					  }
 				  }
 			  }
@@ -207,7 +211,10 @@ public class SOLVE_LP_ORTOOLS {
 		  System.err.println("No solution found.");
 		}
 		
-		System.out.println("the array is hence: ");
+		System.out.println("the array 0 is hence: ");
 		System.out.println(k0);		
+		
+		System.out.println("the array 1 is hence: ");
+		System.out.println(k1);	
 	}
 }

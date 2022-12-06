@@ -63,7 +63,7 @@ public class DurationService {
 	    HttpGet httpGet = new HttpGet(HERE_URL);
 	    URI uri = new URIBuilder(httpGet.getURI())
 	      .addParameter("waypoint0", waypoint0)
-	      .addParameter("waypoint1", "60.875538,23.252294")
+	      .addParameter("waypoint1", waypoint1)
 	      .addParameter("mode", "fastest;car;traffic:disabled")
 	      .addParameter("app_id", "CWt4Io2jWFGGLV9csUeX")
 	      .addParameter("app_code", "ow1GDLeuAgI2yoDwidUKFw")
