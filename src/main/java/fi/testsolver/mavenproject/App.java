@@ -21,7 +21,7 @@ public class App {
 		
 		int vehicleCount = 1;
 		int depotCount = 1;
-		int taskCount = 2;
+		int taskCount = 3;
 		int totalCount = depotCount + taskCount;
 		int timeOfWorkingDay = 6 * 3600;
 		

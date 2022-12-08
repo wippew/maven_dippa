@@ -32,9 +32,7 @@ public class SOLVE_LP_ORTOOLS {
 		int[] allVehicles = IntStream.range(0, numberOfVehicles).toArray();
 		int[] allDepots = IntStream.range(0, 1).toArray();
 		
-		String solverName = "GLOP";
-		logger.info("Instantiating solver" + solverName);
-		MPSolver model= MPSolver.createSolver("GLOP");
+		MPSolver model= MPSolver.createSolver("SCIP");
 		model.enableOutput();
 		
 		logger.info("Defining model...");
@@ -43,7 +41,7 @@ public class SOLVE_LP_ORTOOLS {
 			for(int i: allNodes) {
 				for (int j: allNodes) {
 					if (i != j) {
-						x[i][j][k] = model.makeBoolVar(String.format("x%d_%d, %d", i, j, k));		
+						x[i][j][k] = model.makeBoolVar( String.format("x%d_%d, %d", i, j, k));		
 					}
 				}
 			}
@@ -151,9 +149,18 @@ public class SOLVE_LP_ORTOOLS {
 //		
 		// MTZ subtour elimination
 		// first forcing depot to be visited
-//		MPConstraint constraintTest = model.makeConstraint(1, 1, "c7");
+//		MPConstraint constraintTest = model.makeConstraint(1, 1, "MTZ_DEPOT");
 //		constraintTest.setCoefficient(u[0], 1);	
-		logger.info("Creating " +  String.valueOf(numberOfNodes) + "Constraint 7...");
+//		
+//		
+//		//then force all to be more than 2
+//		for (int i :allTasks) {
+//			MPConstraint constraintTest2 = model.makeConstraint(2, numberOfNodes, "MTZ_DEPOT_2");
+//			constraintTest2.setCoefficient(u[i], 1);
+//		}
+//		
+		
+//		logger.info("Creating " +  String.valueOf(numberOfNodes) + "Constraint 7...");
 		for (int i: allTasks) {
 			for (int j: allTasks) {
 				for (int k: allVehicles) {
@@ -169,8 +176,8 @@ public class SOLVE_LP_ORTOOLS {
 		
 		MPObjective objective = model.objective();		
 		for (int k: allVehicles) {
-			for (int i: allTasks) {
-				for (int j: allTasks) {
+			for (int i: allNodes) {
+				for (int j: allNodes) {
 					if (i != j) {
 						objective.setCoefficient(x[i][j][k], 1);
 					}
@@ -186,12 +193,15 @@ public class SOLVE_LP_ORTOOLS {
 		
 		MPSolver.ResultStatus resultStatus = model.solve();
 		
-		String test2 = model.exportModelAsLpFormat();
-		System.out.println(test2);
-		
 		
 		List<String> k0 = new ArrayList<>();
-		List<String> k1 = new ArrayList<>();
+		List<Double> k1 = new ArrayList<>();
+		List<Double> k2 = new ArrayList<>();
+		
+		k2.add(u[1].solutionValue());
+		k2.add(u[2].solutionValue());
+		k2.add(u[3].solutionValue());
+
 		
 		// Check that the problem has a feasible solution.
 		if (resultStatus == MPSolver.ResultStatus.OPTIMAL
@@ -201,9 +211,10 @@ public class SOLVE_LP_ORTOOLS {
 			  for(int i: allNodes) {
 				  for (int j: allNodes) {
 					  
-					  if (i != j && x[i][j][k].solutionValue() == 1.0) {
+					  if (i != j && x[i][j][k].solutionValue() >= 0.5) {
 						  double testtest = x[i][j][k].solutionValue();
 						  k0.add(String.format("%d_%d", i, j));
+						  k1.add(testtest);
 						  System.out.println("ASDASD");
 					  }
 						  
@@ -224,5 +235,8 @@ public class SOLVE_LP_ORTOOLS {
 		
 		System.out.println("the array 1 is hence: ");
 		System.out.println(k1);	
+		
+		System.out.println("the array 2 is hence: ");
+		System.out.println(k2);	
 	}
 }
