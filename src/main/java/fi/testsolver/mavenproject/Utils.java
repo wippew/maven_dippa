@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -154,6 +155,44 @@ public class Utils {
 		//Point point = factory.createPoint(new Coordinate(333000, 6666000));
 		//Projector projector = Projector.get(EPSGSrsName.get(4326)); // target srid
 		//Point wgs84 = projector.project(point);
+	}
+	
+	public static List<String> replaceWithArrows(List<String> array) {
+		List<String> ret = new ArrayList<>();
+		for (String str: array) {
+			ret.add(str.replace("_","->" ));
+		}
+		return ret;
+	}
+	
+	
+	public static List<String> orderCorrectly(List<String> array) {
+		List<String> ret = new ArrayList<>();
+		String lastEnd = "0";
+		
+		for (String i : array) {
+			List<String> next = getNextInOrder(array, lastEnd);
+			lastEnd = next.get(1);
+			ret.add(next.get(0));
+		}
+		
+		ret = replaceWithArrows(ret);
+		return ret;
+	}
+	
+	public static List<String> getNextInOrder(List<String> array, String lastEnd) {
+		List<String> retList = new ArrayList<>();
+		for (String i : array) {
+			String[] split = i.split("_");
+			if (split[0].equals(lastEnd)) {
+				lastEnd = split[1];
+				retList.add(i);
+				retList.add(lastEnd);
+				return retList;
+			}
+			
+		}
+		return retList;
 	}
 	
 	
