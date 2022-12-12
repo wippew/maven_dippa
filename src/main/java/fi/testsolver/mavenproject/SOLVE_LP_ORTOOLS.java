@@ -21,7 +21,7 @@ public class SOLVE_LP_ORTOOLS {
 
 	private static final Logger logger = Logger.getLogger(SOLVE_LP_ORTOOLS.class.getName());
 
-	public static void SolveOrToolsLP(Double[][] duration, int[] demand, int vehicleCount) {
+	public static void SolveOrToolsLP(Double[][] duration, int[] demand, int vehicleCount, List<List<Integer>> depots) {
 		Loader.loadNativeLibraries();
 		int numberOfNodes = duration[0].length;
 		int depotCount = 1;
@@ -30,7 +30,7 @@ public class SOLVE_LP_ORTOOLS {
 		int[] allNodes = IntStream.range(0, numberOfNodes).toArray();
 		int[] allTasks = IntStream.range(1, numberOfNodes).toArray();
 		int[] allVehicles = IntStream.range(0, numberOfVehicles).toArray();
-		int[] allDepots = IntStream.range(0, 1).toArray();
+		int[] allDepots = IntStream.range(0, depotCount).toArray();
 
 		MPSolver model = MPSolver.createSolver("SCIP");
 		model.enableOutput();
@@ -76,12 +76,9 @@ public class SOLVE_LP_ORTOOLS {
 		// constraint 3: depart from own depot
 		logger.info("Creating " + String.valueOf(numberOfNodes) + "Constraint 3.1....");
 		for (int i : allDepots) {
-			int[] cars = new int[2];
-			cars[0] = 0;
-			cars[1] = 1;
-			for (int k = 0; k < cars.length; k++) {
+			List<Integer> cars = depots.get(i);
+			for (int car : cars) {
 				MPConstraint constraint0 = model.makeConstraint(1, 1, "c3.1.");
-				int car = cars[k];
 				for (int j : allNodes) {
 					constraint0.setCoefficient(x[i][j][car], 1);
 				}
@@ -96,14 +93,12 @@ public class SOLVE_LP_ORTOOLS {
 		// constraint 4: no trip is conducted by a vehicle not belonging to a depot
 		logger.info("Creating Constraint 4...");
 		for (int depotIndex : allDepots) {
-			int[] cars = new int[2];
-			cars[0] = 0;
-			cars[1] = 1;
-			for (int otherDepot : allDepots) {
+			List<Integer> cars = depots.get(depotIndex);
+			for (int otherDepot : IntStream.range(0, depotCount).toArray()) {
 				if (depotIndex != otherDepot) {
-					for (int k = 0; k < cars.length; k++) {
+					for (int k = 0; k < cars.size(); k++) {
+						int car = cars.get(k);
 						MPConstraint constraint0 = model.makeConstraint(0, 0, "c4");
-						int car = cars[k];
 						for (int j : allNodes) {
 							constraint0.setCoefficient(x[otherDepot][j][car], 1);
 						}
@@ -114,7 +109,6 @@ public class SOLVE_LP_ORTOOLS {
 					}
 				}
 			}
-
 		}
 
 		// constraint 5: number of vehicles in and out of a tasks's location stays the
@@ -151,7 +145,7 @@ public class SOLVE_LP_ORTOOLS {
 		}
 //		
 		// MTZ subtour elimination
-		logger.info("Creating " +  String.valueOf(numberOfNodes) + "Constraint 7...");
+		logger.info("Creating " + String.valueOf(numberOfNodes) + "Constraint 7...");
 		for (int i : allTasks) {
 			for (int j : allTasks) {
 				for (int k : allVehicles) {
@@ -211,7 +205,7 @@ public class SOLVE_LP_ORTOOLS {
 
 		System.out.println("the array 0 is hence: ");
 		System.out.println(Utils.orderCorrectly(k0));
-		
+
 		System.out.println("the array 1 is hence: ");
 		System.out.println(Utils.orderCorrectly(k1));
 	}

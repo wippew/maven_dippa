@@ -90,7 +90,7 @@ public class App {
 		int[] demand = {0, 3600, 3600, 3600};
 		
 		SOLVE_LP_ORTOOLS ortools = new SOLVE_LP_ORTOOLS();
-		ortools.SolveOrToolsLP(duration, demand, vehicleCount);
+		ortools.SolveOrToolsLP(duration, demand, vehicleCount, depots);
 		
 		
 	}
