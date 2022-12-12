@@ -25,12 +25,14 @@ public class App {
 			depots.add(new ArrayList<Integer>());
 	    }
 		depots.get(0).add(0);
-		depots.get(1).add(1);
+		depots.get(0).add(1);
+		depots.get(1).add(2);
+		depots.get(1).add(3);
 		int vehicleCount = 0;
 		for (List<Integer> depot: depots) {
 			vehicleCount += depot.size();
 		}
-		int taskCount = 5;
+		int taskCount = 30;
 		int totalCount = depotCount + taskCount;
 		int timeOfWorkingDay = 6 * 3600;
 		
@@ -50,44 +52,22 @@ public class App {
 //		}
 		
 		Double[][] duration = new Double[totalCount][totalCount];
-		duration[0][0] = 0.0;
-		duration[0][1] = 10.0;
-		duration[0][2] = 15.0;
-		duration[0][3] = 25.0;
-		duration[0][4] = 25.0;
-		duration[0][5] = 25.0;
-		duration[1][0] = 10.0;
-		duration[1][1] = 0.0;
-		duration[1][2] = 15.0;
-		duration[1][3] = 15.0;
-		duration[1][4] = 15.0;
-		duration[1][5] = 15.0;
-		duration[2][0] = 7.0;
-		duration[2][1] = 10.0;
-		duration[2][2] = 0.0;
-		duration[2][3] = 10.0;
-		duration[2][4] = 10.0;
-		duration[2][5] = 10.0;
-		duration[3][0] = 20.0;
-		duration[3][1] = 30.0;
-		duration[3][2] = 20.0;
-		duration[3][3] = 0.0;
-		duration[3][4] = 10.0;
-		duration[3][5] = 20.0;
-		duration[4][0] = 10.0;
-		duration[4][1] = 20.0;
-		duration[4][2] = 10.0;
-		duration[4][3] = 20.0;
-		duration[4][4] = 0.0;
-		duration[4][5] = 10.0;
-		duration[5][0] = 20.0;
-		duration[5][1] = 10.0;
-		duration[5][2] = 20.0;
-		duration[5][3] = 10.0;
-		duration[5][4] = 20.0;
-		duration[5][5] = 0.0;
+		for (int i = 0; i < totalCount; i++) {
+			for (int j = 0; j < totalCount; j++) {
+				if (i == j) {
+					duration[i][j] = 0.0;
+				} else {
+					duration[i][j] = (1.0 + i + j) * 60;
+				}
+			}
+		}
 		
-		int[] demand = {0, 3600, 3600, 3600};
+		int[] demand = new int[totalCount];
+		for (int i = 0; i < totalCount; i++) {
+			demand[i] = 1800;
+		}		
+		demand[0] = 0;
+		demand[1] = 0;
 		
 		SOLVE_LP_ORTOOLS ortools = new SOLVE_LP_ORTOOLS();
 		ortools.SolveOrToolsLP(duration, demand, vehicleCount, depots);

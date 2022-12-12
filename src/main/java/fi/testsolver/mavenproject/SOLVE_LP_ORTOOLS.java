@@ -25,7 +25,8 @@ public class SOLVE_LP_ORTOOLS {
 		Loader.loadNativeLibraries();
 		int numberOfNodes = duration[0].length;
 		int depotCount = 2;
-		int maxTime = 6 * 60 * 60;
+		double maxTime = 6 * 60 * 60;
+		double minTime = 5.2 * 60 * 60;
 		int numberOfVehicles = vehicleCount;
 		int[] allNodes = IntStream.range(0, numberOfNodes).toArray();
 		int[] allTasks = IntStream.range(depotCount, numberOfNodes).toArray();
@@ -128,15 +129,15 @@ public class SOLVE_LP_ORTOOLS {
 
 		// constraint 6: the time-capacity of each vehicle should not exceed the maximum
 		// capacity
-//		logger.info("Creating " +  String.valueOf(numberOfNodes) + "Constraint 6...");
-//		for (int k: allVehicles) {
-//			MPConstraint constraint = model.makeConstraint(0, maxTime, "c6");
-//			for (int i: allNodes) {
-//				for (int j: allNodes) {
-//					constraint.setCoefficient(x[i][j][k] , (duration[i][j] + demand[j]));
-//				}
-//			}
-//		}
+		logger.info("Creating " +  String.valueOf(numberOfNodes) + "Constraint 6...");
+		for (int k : allVehicles) {
+			MPConstraint constraint = model.makeConstraint(minTime, maxTime, "c6");
+			for (int i : allNodes) {
+				for (int j : allNodes) {
+					constraint.setCoefficient(x[i][j][k], (duration[i][j] + demand[j]));
+				}
+			}
+		}
 
 		// definition of auxilliary variable u
 		MPVariable[] u = new MPVariable[numberOfNodes];
@@ -172,29 +173,27 @@ public class SOLVE_LP_ORTOOLS {
 		}
 		objective.setMaximization();
 
-		// model.setTimeLimit(60);
+		// model.setTimeLimit(960 * 1000);
 
 		String test = model.exportModelAsLpFormat();
 		System.out.println(test);
 
 		MPSolver.ResultStatus resultStatus = model.solve();
 
-		List<String> k0 = new ArrayList<>();
-		List<String> k1 = new ArrayList<>();
+		List<List<String>> routesAsString = new ArrayList<List<String>>(numberOfVehicles);
+		for (int k = 0; k < numberOfVehicles; k++) {
+			routesAsString.add(new ArrayList<String>());
+		}
 
 		// Check that the problem has a feasible solution.
 		if (resultStatus == MPSolver.ResultStatus.OPTIMAL || resultStatus == MPSolver.ResultStatus.FEASIBLE) {
-			System.out.println("Total cost: " + objective.value() + "\n");
+			System.out.println("Total number of nodes visited: " + objective.value() + "\n");
 			for (int k : allVehicles) {
 				for (int i : allNodes) {
 					for (int j : allNodes) {
 
 						if (i != j && x[i][j][k].solutionValue() == 1.0) {
-							if (k == 0) {
-								k0.add(String.format("%d_%d", i, j));
-							} else if (k == 1) {
-								k1.add(String.format("%d_%d", i, j));
-							}
+							routesAsString.get(k).add(String.format("%d_%d", i, j));
 						}
 					}
 				}
@@ -203,10 +202,17 @@ public class SOLVE_LP_ORTOOLS {
 			System.err.println("No solution found.");
 		}
 
+		// orderCorrectly takes and array and startDepot as arguments
 		System.out.println("the array 0 is hence: ");
-		System.out.println(Utils.orderCorrectly(k0, "0"));
+		System.out.println(Utils.orderCorrectly(routesAsString.get(0), "0"));
 
 		System.out.println("the array 1 is hence: ");
-		System.out.println(Utils.orderCorrectly(k1, "1"));
+		System.out.println(Utils.orderCorrectly(routesAsString.get(1), "0"));
+
+		System.out.println("the array 2 is hence: ");
+		System.out.println(Utils.orderCorrectly(routesAsString.get(2), "1"));
+
+		System.out.println("the array 3 is hence: ");
+		System.out.println(Utils.orderCorrectly(routesAsString.get(3), "1"));
 	}
 }
