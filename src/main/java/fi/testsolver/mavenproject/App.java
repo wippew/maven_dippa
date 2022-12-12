@@ -19,13 +19,13 @@ public class App {
 	
 	public static void main(String[] args) throws Exception {
 		
-		int depotCount = 1;
+		int depotCount = 2;
 		List<List<Integer>> depots = new ArrayList<List<Integer>>(depotCount);
 		for(int i = 0; i < depotCount; i++)  {
 			depots.add(new ArrayList<Integer>());
 	    }
 		depots.get(0).add(0);
-		depots.get(0).add(1);
+		depots.get(1).add(1);
 		int vehicleCount = 0;
 		for (List<Integer> depot: depots) {
 			vehicleCount += depot.size();

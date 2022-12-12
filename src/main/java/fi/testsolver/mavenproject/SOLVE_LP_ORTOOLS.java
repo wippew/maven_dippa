@@ -24,11 +24,11 @@ public class SOLVE_LP_ORTOOLS {
 	public static void SolveOrToolsLP(Double[][] duration, int[] demand, int vehicleCount, List<List<Integer>> depots) {
 		Loader.loadNativeLibraries();
 		int numberOfNodes = duration[0].length;
-		int depotCount = 1;
+		int depotCount = 2;
 		int maxTime = 6 * 60 * 60;
 		int numberOfVehicles = vehicleCount;
 		int[] allNodes = IntStream.range(0, numberOfNodes).toArray();
-		int[] allTasks = IntStream.range(1, numberOfNodes).toArray();
+		int[] allTasks = IntStream.range(depotCount, numberOfNodes).toArray();
 		int[] allVehicles = IntStream.range(0, numberOfVehicles).toArray();
 		int[] allDepots = IntStream.range(0, depotCount).toArray();
 
@@ -204,9 +204,9 @@ public class SOLVE_LP_ORTOOLS {
 		}
 
 		System.out.println("the array 0 is hence: ");
-		System.out.println(Utils.orderCorrectly(k0));
+		System.out.println(Utils.orderCorrectly(k0, "0"));
 
 		System.out.println("the array 1 is hence: ");
-		System.out.println(Utils.orderCorrectly(k1));
+		System.out.println(Utils.orderCorrectly(k1, "1"));
 	}
 }

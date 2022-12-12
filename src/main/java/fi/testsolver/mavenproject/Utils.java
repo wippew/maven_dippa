@@ -166,10 +166,9 @@ public class Utils {
 	}
 	
 	
-	public static List<String> orderCorrectly(List<String> array) {
+	public static List<String> orderCorrectly(List<String> array, String start) {
 		List<String> ret = new ArrayList<>();
-		String lastEnd = "0";
-		
+		String lastEnd = start;
 		for (String i : array) {
 			List<String> next = getNextInOrder(array, lastEnd);
 			lastEnd = next.get(1);
